@@ -15,6 +15,14 @@ resources:
 
 - name: {{ env["deployment"] }}-dns
   type: dns.jinja
+  properties:
+    name: {{ env["deployment"] }}-dns
+    dns_name: {{ properties['dns_name'] }}
+
+- name: {{ env["deployment"] }}-net
+  type: network.jinja
+  properties:
+    name: {{ env["deployment"] }}-net
 
 {% for instance_group in properties['instance_groups'] %}
 - name: {{ env["deployment"] }}-{{ instance_group['name'] }}
@@ -33,3 +41,6 @@ resources:
 
 - name: {{ env["deployment"] }}-fw
   type: firewall.jinja
+  properties:
+    network: {{ env["deployment"] }}-net
+    firewall_extra_ports: {{ properties['firewall_extra_ports'] }}

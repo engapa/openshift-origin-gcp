@@ -12,9 +12,8 @@ limitations under the License.
 #}
 
 resources:
-- name: {{ env["deployment"] }}-icmp
-  type: compute.v1.firewall
+- name: {{ properties['name'] }}
+  type: dns.v1.managedZone
   properties:
-    network: $(ref.network.selfLink)
-    allowed:
-    - IPProtocol: icmp
+    dnsName: {{ properties['dns_name'] }}
+    description: {{ properties['name'] + " domain" }}

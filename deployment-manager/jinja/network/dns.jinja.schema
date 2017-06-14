@@ -25,33 +25,16 @@ imports:
 
 required:
 - name
-- type
+- dns_name
 
 properties:
   name:
     type: string
-    description: The node name
+    description: Managed zone name
 
-  type:
+  dns_name:
     type: string
-    description: Type of Openshift node
-
-  size:
-    type: integer
-    description: Number of nodes
-    default: 1
-
-  flavor:
-    type: string
-    description: Size of instance
-
-  zone:
-    type: string
-    description: GCP zone to create the resource
-
-  image:
-    type: string
-    description: Instance image
+    description: Public hosted zone
 
 outputs:
   instanceTemplateSelfLink:

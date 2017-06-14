@@ -11,8 +11,8 @@ See the License for the specific language governing permissions and
 limitations under the License.
 #}
 
-{% set INSTANCE_TEMPLATE = "%s-it-%s" % (env["deployment"], properties['type']) %}
-{% set IGM = "%s-igm-%s" % (env["deployment"], properties['type']) %}
+{% set INSTANCE_TEMPLATE = "%s-it-%s" % (env["deployment"], properties['name']) %}
+{% set IGM = "%s-igm-%s" % (env["deployment"], properties['name']) %}
 
 {% macro InstanceGroup(api_version='v1', it_extended_content='') %}
 {# Generates an extended content for intance template.
@@ -23,14 +23,14 @@ limitations under the License.
 #}
 resources:
 - name: {{ IGM }}
-  type: compute.{{ API_VERSION }}.instanceGroupManager
+  type: compute.{{ api_version }}.instanceGroupManager
   properties:
     baseInstanceName: {{ env["deployment"] }}
     instanceTemplate: $(ref.{{ INSTANCE_TEMPLATE }}.selfLink)
     targetSize: {{ properties["size"] }}
     zone: {{ properties["zone"] }}
 - name: {{ INSTANCE_TEMPLATE }}
-  type: compute.{{ API_VERSION }}.instanceTemplate
+  type: compute.{{ api_version }}.instanceTemplate
   properties:
     properties:
       disks:

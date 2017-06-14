@@ -25,16 +25,26 @@ imports:
   name: master.jinja
 - path: compute/node.jinja
   name: node.jinja
+- path: network/network.jinja
+  name: network.jinja
+- path: network/firewall.jinja
+  name: firewall.jinja
+- path: network/dns.jinja
+  name: dns.jinja
 
 required:
 - dns_zone
+- dns_name
 - instance_groups
 
 properties:
-
   dns_zone:
     type: string
     description: DNS zone
+
+  dns_name:
+    type: string
+    description: Public hosted zone
 
   zone:
     type: string
@@ -51,6 +61,11 @@ properties:
   instance_groups:
     type: array
     description: Instance groups for any type of node (infra, master, node)
+    default: []
+
+  firewall_extra_ports:
+    type: array
+    description: Range of ports for nodes
     default: []
 
 outputs:

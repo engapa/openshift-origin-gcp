@@ -15,20 +15,20 @@ resources:
 - name: {{ env["deployment"] }}-icmp
   type: compute.v1.firewall
   properties:
-    network: $(ref.network.selfLink)
+    network: $(ref.{{ properties['network'] }}.selfLink)
     allowed:
     - IPProtocol: icmp
 - name: {{ env["deployment"] }}-ssh-external
   type: compute.v1.firewall
   properties:
-    network: $(ref.network.selfLink)
+    network: $(ref.{{ properties['network'] }}.selfLink)
     allowed:
     - IPProtocol: tcp
       ports: ["22"]
 - name: {{ env["deployment"] }}-ssh-internal
   type: compute.v1.firewall
   properties:
-    network: $(ref.network.selfLink)
+    network: $(ref.{{ properties['network'] }}.selfLink)
     sourceTags: ["bastion"]
     allowed:
     - IPProtocol: tcp
@@ -36,7 +36,7 @@ resources:
 - name: {{ env["deployment"] }}-master-internal
   type: compute.v1.firewall
   properties:
-    network: $(ref.network.selfLink)
+    network: $(ref.{{ properties['network'] }}.selfLink)
     sourceTags: ["{{ env["deployment"] }}"]
     targetTags: ["{{ env["deployment"] }}-master"]
     allowed:
@@ -47,15 +47,17 @@ resources:
 - name: {{ env["deployment"] }}-master-external
   type: compute.v1.firewall
   properties:
-    network: $(ref.network.selfLink)
+    network: $(ref.{{ properties['network'] }}.selfLink)
     targetTags: ["{{ env["deployment"] }}-master"]
     allowed:
     - IPProtocol: tcp
-      ports: ["80","443","1936","8080","8443"]
+      ports: {{ ["80","443","1936","8080","8443"] + properties['firewall_extra_ports'] }}
+    - IPProtocol: udp
+      ports: {{ [] + properties['firewall_extra_ports'] }}
 - name: {{ env["deployment"] }}-node-internal
   type: compute.v1.firewall
   properties:
-    network: $(ref.network.selfLink)
+    network: $(ref.{{ properties['network'] }}.selfLink)
     sourceTags: ["{{ env["deployment"] }}"]
     targetTags: ["{{ env["deployment"] }}-node","ocp-infra-node"]
     allowed:
@@ -66,7 +68,7 @@ resources:
 - name: {{ env["deployment"] }}-infra-node-internal
   type: compute.v1.firewall
   properties:
-    network: $(ref.network.selfLink)
+    network: $(ref.{{ properties['network'] }}.selfLink)
     sourceTags: ["{{ env["deployment"] }}"]
     targetTags: ["{{ env["deployment"] }}-infra-node"]
     allowed:
@@ -75,7 +77,7 @@ resources:
 - name: {{ env["deployment"] }}-infra-node-external
   type: compute.v1.firewall
   properties:
-    network: $(ref.network.selfLink)
+    network: $(ref.{{ properties['network'] }}.selfLink)
     targetTags: ["{{ env["deployment"] }}-infra-node"]
     allowed:
     - IPProtocol: tcp

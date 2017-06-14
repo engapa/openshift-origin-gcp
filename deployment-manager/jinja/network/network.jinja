@@ -12,7 +12,7 @@ limitations under the License.
 #}
 
 resources:
-- name: {{ env["deployment"] }}-network
+- name: {{ properties['name'] }}
   type: compute.v1.network
   properties:
     autoCreateSubnetworks: true

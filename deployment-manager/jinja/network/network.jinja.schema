@@ -13,47 +13,25 @@
 # limitations under the License.
 
 info:
-  title: Openshift Origin Cluster - Node
+  title: Openshift Origin Cluster - Network
   author: >
     Leticia Garcia Martin <l.garcia.martin.contractor@bbva.com>,
     Enrique Garcia Pablos <enrique.garcia.pablos@bbva.com>
-  description: DNS Zone
+  description: Network creation
   version: 1.0
 
 imports:
-- path: dns.jinja
+- path: network.jinja
 
 required:
 - name
-- type
 
 properties:
   name:
     type: string
-    description: The node name
-
-  type:
-    type: string
-    description: Type of Openshift node
-
-  size:
-    type: integer
-    description: Number of nodes
-    default: 1
-
-  flavor:
-    type: string
-    description: Size of instance
-
-  zone:
-    type: string
-    description: GCP zone to create the resource
-
-  image:
-    type: string
-    description: Instance image
+    description: The network name
 
 outputs:
   instanceTemplateSelfLink:
     type: string
-    description: The selflink of this dns zone
+    description: The selflink of this network zone

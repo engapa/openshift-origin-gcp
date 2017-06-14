@@ -1,4 +1,4 @@
-dns.jinja.schema# Copyright 2017 BBVA. All rights reserved.
+# Copyright 2017 BBVA. All rights reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -24,14 +24,17 @@ imports:
 - path: firewall.jinja
 
 required:
-- extra_ports
-- type
+- network
 
 properties:
-  extra_ports:
-    type: object
+  network:
+    type: string
+    description: Network name
+
+  firewall_extra_ports:
+    type: array
     description: A firewall rule map
-    default: {}
+    default: []
 
 outputs:
   instanceTemplateSelfLink:

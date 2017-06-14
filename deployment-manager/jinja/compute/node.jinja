@@ -12,7 +12,7 @@ limitations under the License.
 #}
 
 {% from "ig.jinja" import InstanceGroup with context %}
-{% sep GPU_SIZE = properties['gpu_size'] if properties['gpu_size'] else 0 %}
+{% set GPU_SIZE = properties['gpu_size'] if properties['gpu_size'] else 0 %}
 {% set API_VERSION = 'beta' if GPU_SIZE > 0 else 'v1' %}
 
 {% macro GPUExtension(gpu_size, gpu_type='nvidia-tesla-k80') %}
