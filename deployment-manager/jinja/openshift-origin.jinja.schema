@@ -1,0 +1,59 @@
+# Copyright 2017 BBVA. All rights reserved.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#      http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+info:
+  title: Openshift Origin Cluster
+  author: >
+    Leticia Garcia Martin <l.garcia.martin.contractor@bbva.com>,
+    Enrique Garcia Pablos <enrique.garcia.pablos@bbva.com>
+  description: Create Openshift Origin Cluster resources
+  version: 1.0
+
+imports:
+- path: compute/master.jinja
+  name: master.jinja
+- path: compute/node.jinja
+  name: node.jinja
+
+required:
+- dns_zone
+- instance_groups
+
+properties:
+
+  dns_zone:
+    type: string
+    description: DNS zone
+
+  zone:
+    type: string
+    description: Default zone when multizone is disabled
+
+  image:
+    type: string
+    description: Default image for instances
+
+  flavor:
+    type: string
+    description: Default flavor for all instances
+
+  instance_groups:
+    type: array
+    description: Instance groups for any type of node (infra, master, node)
+    default: []
+
+outputs:
+  instanceTemplateSelfLink:
+    type: string
+    description: The selflink of this instance template

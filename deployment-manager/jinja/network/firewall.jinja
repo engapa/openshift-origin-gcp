@@ -1,0 +1,92 @@
+{#
+Copyright 2017 BBVA. All rights reserved.
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+    http://www.apache.org/licenses/LICENSE-2.0
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+#}
+
+resources:
+- name: {{ env["deployment"] }}-icmp
+  type: compute.v1.firewall
+  properties:
+    network: $(ref.network.selfLink)
+    allowed:
+    - IPProtocol: icmp
+- name: {{ env["deployment"] }}-ssh-external
+  type: compute.v1.firewall
+  properties:
+    network: $(ref.network.selfLink)
+    allowed:
+    - IPProtocol: tcp
+      ports: ["22"]
+- name: {{ env["deployment"] }}-ssh-internal
+  type: compute.v1.firewall
+  properties:
+    network: $(ref.network.selfLink)
+    sourceTags: ["bastion"]
+    allowed:
+    - IPProtocol: tcp
+      ports: ["22"]
+- name: {{ env["deployment"] }}-master-internal
+  type: compute.v1.firewall
+  properties:
+    network: $(ref.network.selfLink)
+    sourceTags: ["{{ env["deployment"] }}"]
+    targetTags: ["{{ env["deployment"] }}-master"]
+    allowed:
+    - IPProtocol: tcp
+      ports: ["1935","2224","2379","2380","4001","8053","8444","10250","10255","24224"]
+    - IPProtocol: udp
+      ports: ["4789","5404","5405","8053","10255","24224"]
+- name: {{ env["deployment"] }}-master-external
+  type: compute.v1.firewall
+  properties:
+    network: $(ref.network.selfLink)
+    targetTags: ["{{ env["deployment"] }}-master"]
+    allowed:
+    - IPProtocol: tcp
+      ports: ["80","443","1936","8080","8443"]
+- name: {{ env["deployment"] }}-node-internal
+  type: compute.v1.firewall
+  properties:
+    network: $(ref.network.selfLink)
+    sourceTags: ["{{ env["deployment"] }}"]
+    targetTags: ["{{ env["deployment"] }}-node","ocp-infra-node"]
+    allowed:
+    - IPProtocol: tcp
+      ports: ["1935","10250","10255"]
+    - IPProtocol: udp
+      ports: ["4789","10255"]
+- name: {{ env["deployment"] }}-infra-node-internal
+  type: compute.v1.firewall
+  properties:
+    network: $(ref.network.selfLink)
+    sourceTags: ["{{ env["deployment"] }}"]
+    targetTags: ["{{ env["deployment"] }}-infra-node"]
+    allowed:
+    - IPProtocol: tcp
+      ports: ["1935","5000"]
+- name: {{ env["deployment"] }}-infra-node-external
+  type: compute.v1.firewall
+  properties:
+    network: $(ref.network.selfLink)
+    targetTags: ["{{ env["deployment"] }}-infra-node"]
+    allowed:
+    - IPProtocol: tcp
+      ports: ["80","443","1936"]
+{#
+  ['icmp']='--allow icmp'
+  ['ssh-external']='--allow tcp:22'
+  ['ssh-internal']='--allow tcp:22 --source-tags bastion'
+  ['master-internal']="--allow tcp:1935,tcp:2224,tcp:2379,tcp:2380,tcp:4001,udp:4789,udp:5404,udp:5405,tcp:8053,udp:8053,tcp:8444,tcp:10250,tcp:10255,udp:10255,tcp:24224,udp:24224 --source-tags ocp --target-tags ocp-master"
+  ['master-external']="--allow tcp:80,tcp:443,tcp:1936,tcp:8080,tcp:8443${range} --target-tags ocp-master"
+  ['node-internal']="--allow tcp:1935,udp:4789,tcp:10250,tcp:10255,udp:10255 --source-tags ocp --target-tags ocp-node,ocp-infra-node"
+  ['infra-node-internal']="--allow tcp:1935,tcp:5000 --source-tags ocp --target-tags ocp-infra-node"
+  ['infra-node-external']="--allow tcp:80,tcp:443,tcp:1936${range} --target-tags ocp-infra-node"
+#}
