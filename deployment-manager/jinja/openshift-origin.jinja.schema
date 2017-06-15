@@ -63,6 +63,11 @@ properties:
     description: Instance groups for any type of node (infra, master, node)
     default: []
 
+  instance_groups_type:
+    type: string
+    description: Instance group type (unmanaged, managed)
+    default: unmanaged
+
   firewall_extra_ports:
     type: array
     description: Range of ports for nodes
