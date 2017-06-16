@@ -1,0 +1,39 @@
+imports:
+- path: openshift-origin.py
+
+resources:
+- name: openshift-origin
+  type: openshift-origin.py
+  properties:
+    image: oso-instance
+    zone: europe-west1-b
+    flavor: n1-standard-4
+    dns_name: mloso.dm.com.
+    default_disks:
+      - sizeGb: 40
+        diskType: pd-ssd
+        name: docker
+      - sizeGb: 40
+        diskType: pd-ssd
+        name: openshift
+    instance_groups:
+    - name: master
+      type: master
+      size: 2
+    - name: node
+      type: node
+      size: 2
+      disks:
+      - sizeGb: 60
+        diskType: pd-ssd
+        name: docker
+      - sizeGb: 40
+        diskType: pd-ssd
+        name: openshift
+    - name: node-gpu
+      type: node
+      size: 2
+      gpu_size: 1
+    firewall_extra_ports: ["30000-32000"]
+    instance_groups_type: unmanaged
+
