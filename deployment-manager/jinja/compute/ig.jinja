@@ -46,6 +46,7 @@ resources:
         initializeParams:
           sourceImage: projects/{{ env["project"] }}/global/images/empty-disk-image
           diskSizeGb: {{ disk["sizeGb"] }}
+          diskType: {{ disk["diskType"] }}
       {% endfor %}
       machineType: {{ properties["flavor"] }}
       networkInterfaces:
