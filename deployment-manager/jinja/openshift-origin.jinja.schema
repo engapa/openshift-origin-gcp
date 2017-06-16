@@ -33,15 +33,10 @@ imports:
   name: dns.jinja
 
 required:
-- dns_zone
 - dns_name
 - instance_groups
 
 properties:
-  dns_zone:
-    type: string
-    description: DNS zone
-
   dns_name:
     type: string
     description: Public hosted zone

@@ -28,6 +28,7 @@ resources:
 - name: {{ env["deployment"] }}-{{ instance_group['name'] }}
   type: {{ instance_group['type'] }}.jinja
   properties:
+    ig_type: {{ properties['instance_groups_type'] }}
     name: {{ instance_group['name'] }}
     type: {{ instance_group['type'] }}
     size: {{ instance_group['size'] }}
