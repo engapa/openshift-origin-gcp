@@ -13,57 +13,42 @@
 # limitations under the License.
 
 info:
-  title: Openshift Origin Cluster - Node
+  title: Openshift Origin Cluster - Instance Groups
   author: >
     Leticia Garcia Martin <l.garcia.martin.contractor@bbva.com>,
     Enrique Garcia Pablos <enrique.garcia.pablos@bbva.com>
-  description: Create Openshift Origin Cluster nodes
+  description: Create an instance group on GCE
   version: 1.0
 
-imports:
-- path: node.jinja
-- path: ig.jinja
-- path: disk.jinja
-
 required:
-- name
-- type
+- zone
+- disks
 
 properties:
-  name:
-    type: string
-    description: The node name
-
-  type:
-    type: string
-    description: Type of Openshift node
-
-  size:
-    type: integer
-    description: Number of nodes
-    default: 1
-
-  ig_type:
-    type: string
-    description: Instance group type
-    default: unmanaged
-
-  flavor:
-    type: string
-    description: Size of instance
-
   zone:
     type: string
-    description: GCP zone to create the resource
+    description: GCP zone
 
-  image:
-    type: string
-    description: Instance image
-
-  gpu_size:
-    type: integer
-    description: Number of GPUs on this node
-    default: 0
+  disks:
+    type: array
+    items:
+      type: object
+      required:
+      - name
+      properties:
+        name:
+          type: string
+          description: Suffix for this disk
+        sizeGb:
+          type: integer
+          default: 40
+        diskType:
+          type: string
+          default: pd-standard
+          enum:
+          - pd-standard
+          - pd-ssd
+      additionalProperties: false
 
 outputs:
   instanceTemplateSelfLink:

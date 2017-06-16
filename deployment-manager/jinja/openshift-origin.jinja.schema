@@ -35,6 +35,7 @@ imports:
 required:
 - dns_name
 - instance_groups
+- image
 
 properties:
   dns_name:
@@ -44,6 +45,7 @@ properties:
   zone:
     type: string
     description: Default zone when multizone is disabled
+    default: europe-west1-b
 
   image:
     type: string
@@ -52,6 +54,7 @@ properties:
   flavor:
     type: string
     description: Default flavor for all instances
+    default: n1-standard-4
 
   instance_groups:
     type: array
@@ -64,6 +67,11 @@ properties:
     default: unmanaged
 
   firewall_extra_ports:
+    type: array
+    description: Range of ports for nodes
+    default: []
+
+  default_disks:
     type: array
     description: Range of ports for nodes
     default: []

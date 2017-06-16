@@ -35,6 +35,7 @@ resources:
     image: {{ instance_group['image'] | default(properties['image']) }}
     zone: {{ instance_group['zone'] | default(properties['zone']) }}
     flavor: {{ instance_group['flavor'] | default(properties['flavor']) }}
+    disks: {{ instance_group['disks'] | default(properties['default_disks']) }}
     {% if instance_group['type'] == 'node' and instance_group['gpu'] %}
     gpu: {{ instance_group['gpu'] }}
     {% endif %}

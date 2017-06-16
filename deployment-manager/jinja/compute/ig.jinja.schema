@@ -25,6 +25,7 @@ required:
 - zone
 - flavor
 - image
+- disks
 
 properties:
   name:
@@ -48,6 +49,27 @@ properties:
   flavor:
     type: string
     description: The size of the master instances
+
+  disks:
+    type: array
+    items:
+      type: object
+      required:
+      - name
+      properties:
+        name:
+          type: string
+          description: Suffix for this disk
+        sizeGb:
+          type: integer
+          default: 40
+        diskType:
+          type: string
+          default: pd-standard
+          enum:
+          - pd-standard
+          - pd-ssd
+      additionalProperties: false
 
 outputs:
   instanceTemplateSelfLink:
