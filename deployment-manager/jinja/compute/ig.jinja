@@ -15,14 +15,14 @@ limitations under the License.
 {% set IGM = "%s-igm-%s" % (env["deployment"], properties['name']) %}
 
 {% macro InstanceGroup(api_version='v1', it_extended_content='') %}
-{% if property['ig_type'] == 'managed' %}
+{% if properties['ig_type'] == 'managed' %}
 resources:
 - name: {{ IGM }}
   type: compute.{{ api_version }}.instanceGroupManager
   properties:
     baseInstanceName: {{ env["deployment"] }}
     instanceTemplate: $(ref.{{ INSTANCE_TEMPLATE }}.selfLink)
-    targetSize: {{ property['size'] }}
+    targetSize: {{ properties['size'] }}
     zone: {{ properties["zone"] }}
 - name: {{ INSTANCE_TEMPLATE }}
   type: compute.{{ api_version }}.instanceTemplate
