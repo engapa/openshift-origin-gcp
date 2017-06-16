@@ -13,29 +13,27 @@
 # limitations under the License.
 
 info:
-  title: Openshift Origin Cluster - Master
+  title: Openshift Origin Cluster - Instance Groups
   author: >
     Leticia Garcia Martin <l.garcia.martin.contractor@bbva.com>,
     Enrique Garcia Pablos <enrique.garcia.pablos@bbva.com>
-  description: Create Openshift Origin Cluster master nodes
+  description: Create an instance group on GCE
   version: 1.0
-
-imports:
-- path: master.jinja
-- path: ig.jinja
 
 required:
 - name
+- zone
+- flavor
+- image
 
 properties:
   name:
     type: string
     description: The master node name
 
-  type:
+  zone:
     type: string
-    description: Type of Openshift node
-    default: master
+    description: GCP zone
 
   size:
     type: integer

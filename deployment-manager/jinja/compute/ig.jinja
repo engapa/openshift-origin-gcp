@@ -15,19 +15,14 @@ limitations under the License.
 {% set IGM = "%s-igm-%s" % (env["deployment"], properties['name']) %}
 
 {% macro InstanceGroup(api_version='v1', it_extended_content='') %}
-{# Generates an extended content for intance template.
-   Args:
-     it_extended_content: Instance template content.
-   Returns:
-     An extra content for instance template resource.
-#}
+{% if property['ig_type'] == 'managed' %}
 resources:
 - name: {{ IGM }}
   type: compute.{{ api_version }}.instanceGroupManager
   properties:
     baseInstanceName: {{ env["deployment"] }}
     instanceTemplate: $(ref.{{ INSTANCE_TEMPLATE }}.selfLink)
-    targetSize: {{ properties["size"] }}
+    targetSize: {{ property['size'] }}
     zone: {{ properties["zone"] }}
 - name: {{ INSTANCE_TEMPLATE }}
   type: compute.{{ api_version }}.instanceTemplate
@@ -44,4 +39,12 @@ resources:
       networkInterfaces:
       - network: https://www.googleapis.com/compute/v1/projects/{{ env["project"] }}/global/networks/default
       {{ it_extended_content }}
+{% else %}
+resources:
+- name: {{ IGM }}
+  type: compute.v1.instanceGroup
+  properties:
+    zone: {{ properties["zone"] }}
+{# TODO: Create all instances recursively #}
+{% endif %}
 {% endmacro %}

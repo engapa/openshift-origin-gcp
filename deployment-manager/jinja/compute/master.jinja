@@ -11,6 +11,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 #}
 
-{% from "ig.jinja" import InstanceGroup with context%}
+{% from "ig.jinja" import ManagedInstanceGroup with context %}
+{% from "ig_unmanaged.jinja" import UnmanagedInstanceGroup with context %}
 
 {{ InstanceGroup() }}

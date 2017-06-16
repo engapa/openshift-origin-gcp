@@ -42,6 +42,11 @@ properties:
     description: Number of nodes
     default: 1
 
+  ig_type:
+    type:string
+    description: Instance group type
+    default: unmanaged
+
   flavor:
     type: string
     description: Size of instance
