@@ -25,6 +25,11 @@ resources:
     name: {{ env["deployment"] }}-net
 
 {% for instance_group in properties['instance_groups'] %}
+  {% for disk in instance_group.disks| default(properties['disks']) %}
+- name:
+  type:
+  properties:
+  {% endfor %}
 - name: {{ env["deployment"] }}-{{ instance_group['name'] }}
   type: {{ instance_group['type'] }}.jinja
   properties:

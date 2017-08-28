@@ -18,8 +18,8 @@ limitations under the License.
 
 {% macro InstanceGroup(api_version='v1', it_extended_content='') %}
 {% macro diskName(disk) -%}{{ env["name"] }}-disk-{{ disk["name"] }}{%- endmacro %}
-{% if properties['ig_type'] == 'managed' %}
 resources:
+{% if properties['ig_type'] == 'managed' %}
 - name: {{ IGM }}
   type: compute.{{ api_version }}.instanceGroupManager
   properties:
@@ -53,8 +53,6 @@ resources:
       - network: https://www.googleapis.com/compute/v1/projects/{{ env["project"] }}/global/networks/default
       {{ it_extended_content }}
 {% else %}
-resources:
-{#{{ Disks() }}    #}
 - name: {{ IGM }}
   type: compute.v1.instanceGroup
   properties:
