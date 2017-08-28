@@ -30,10 +30,10 @@ resources:
       - sizeGb: 40
         diskType: pd-ssd
         name: openshift
-    - name: node-gpu
-      type: node
-      size: 2
-      gpu_size: 1
+#    - name: node-gpu
+#      type: node
+#      size: 2
+#      gpu_size: 1
     firewall_extra_ports: ["30000-32000"]
     instance_groups_type: unmanaged
 

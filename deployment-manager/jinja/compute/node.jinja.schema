@@ -23,7 +23,6 @@ info:
 imports:
 - path: node.jinja
 - path: ig.jinja
-- path: disk.jinja
 
 required:
 - name

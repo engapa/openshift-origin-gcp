@@ -11,13 +11,12 @@ See the License for the specific language governing permissions and
 limitations under the License.
 #}
 
-{% from "disk.jinja" import Disks with context %}
-
 {% set INSTANCE_TEMPLATE = "%s-it-%s" % (env["deployment"], properties['name']) %}
 {% set IGM = "%s-igm-%s" % (env["deployment"], properties['name']) %}
 
-{% macro InstanceGroup(api_version='v1', it_extended_content='') %}
-{% macro diskName(disk) -%}{{ env["name"] }}-disk-{{ disk["name"] }}{%- endmacro %}
+{% macro diskName(disk, i) -%}{{ env["deployment"] }}-ig-{{ properties['name'] }}-{{ i }}-{{ disk["name"] }}{%- endmacro %}
+
+{% macro InstanceGroup(api_version='v1', it_extended_content='', i_extended_content='') %}
 resources:
 {% if properties['ig_type'] == 'managed' %}
 - name: {{ IGM }}
@@ -30,36 +29,62 @@ resources:
 - name: {{ INSTANCE_TEMPLATE }}
   type: compute.{{ api_version }}.instanceTemplate
   properties:
-    properties:
-      disks:
-      - deviceName: boot
-        type: PERSISTENT
-        boot: true
-        autoDelete: true
-        initializeParams:
-          sourceImage: projects/{{ env["project"] }}/global/images/{{ properties["image"] }}
-      {% for disk in properties["disks"] %}
-      - deviceName: {{ diskName(disk) }}
-        type: PERSISTENT
-        boot: false
-        autoDelete: true
-        initializeParams:
-          sourceImage: projects/{{ env["project"] }}/global/images/empty-disk-image
-          diskSizeGb: {{ disk["sizeGb"] }}
-          diskType: {{ disk["diskType"] }}
-      {% endfor %}
-      machineType: {{ properties["flavor"] }}
-      networkInterfaces:
-      - network: https://www.googleapis.com/compute/v1/projects/{{ env["project"] }}/global/networks/default
-      {{ it_extended_content }}
+    disks:
+    - deviceName: boot
+      type: PERSISTENT
+      boot: true
+      autoDelete: true
+      initializeParams:
+        sourceImage: projects/{{ env["project"] }}/global/images/{{ properties["image"] }}
+    {% for disk in properties["disks"] %}
+    - deviceName: {{ diskName(disk) }}
+      type: PERSISTENT
+      boot: false
+      autoDelete: true
+      initializeParams:
+        sourceImage: projects/{{ env["project"] }}/global/images/empty-disk-image
+        diskSizeGb: {{ disk["sizeGb"] }}
+        diskType: {{ disk["diskType"] }}
+    {% endfor %}
+    machineType: {{ properties["flavor"] }}
+    networkInterfaces:
+    - network: projects/{{ env["project"] }}/global/networks/{{ env["deployment"] }}-net
+    {{ it_extended_content }}
 {% else %}
-- name: {{ IGM }}
-  type: compute.v1.instanceGroup
+{% for i in range(properties["size"]) %}
+{% for disk in properties["disks"] %}
+- name: {{ env["deployment"] }}-ig-{{ properties['name'] }}-{{ i }}-{{ disk["name"] }}
+  type: compute.v1.disk
   properties:
     zone: {{ properties["zone"] }}
-{# TODO: Create all instances recursively #}
+    sizeGb: {{ disk["sizeGb"] }}
+    type: https://www.googleapis.com/compute/v1/projects/{{ env["project"] }}/zones/{{ properties["zone"] }}/diskTypes/{{ disk["diskType"] }}
+{% endfor  %}
+- name: {{ env["deployment"] }}-ig-{{ properties["name"] }}-{{ i }}
+  type: compute.v1.instance
+  properties:
+    zone: {{ properties["zone"] }}
+    disks:
+    - deviceName: boot
+      type: PERSISTENT
+      boot: true
+      autoDelete: true
+      initializeParams:
+        sourceImage: projects/{{ env["project"] }}/global/images/{{ properties["image"] }}
+    {% for disk in properties["disks"] %}
+    - deviceName: {{ diskName(disk,i) }}
+      type: PERSISTENT
+      boot: false
+      autoDelete: true
+      source: projects/{{ env["project"] }}/zones/{{ properties["zone"] }}/disks/{{ diskName(disk,i) }}
+    {% endfor %}
+    machineType: projects/{{ env["project"] }}/zones/{{ properties["zone"] }}/machineTypes/{{ properties["flavor"] }}
+    networkInterfaces:
+    - network: projects/{{ env["project"] }}/global/networks/{{ env["deployment"] }}-net
+    {{ i_extended_content }}
+  metadata:
+    dependsOn:
+    - {{ env["deployment"] }}-net
+{% endfor %}
 {% endif %}
-outputs:
-- name: instanceTemplateSelfLink
-  value: $(ref.{{ INSTANCE_TEMPLATE }}.selfLink)
 {% endmacro %}
