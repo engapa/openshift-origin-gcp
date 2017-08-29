@@ -16,13 +16,18 @@ resources:
       - sizeGb: 40
         diskType: pd-ssd
         name: openshift
+    scopes: [logging.write, monitoring.write, cloud.useraccounts.readonly, servicecontrol, service.management, devstorage.read_only, compute]
     instance_groups:
+#    - name: infra
+#      type: infra
+#      size: 2
     - name: master
       type: master
       size: 2
     - name: node
       type: node
       size: 2
+      tags: [standby]
       disks:
       - sizeGb: 60
         diskType: pd-ssd
@@ -33,7 +38,7 @@ resources:
 #    - name: node-gpu
 #      type: node
 #      size: 2
+#      tags: ",gpu"
 #      gpu_size: 1
     firewall_extra_ports: ["30000-32000"]
     instance_groups_type: unmanaged
-

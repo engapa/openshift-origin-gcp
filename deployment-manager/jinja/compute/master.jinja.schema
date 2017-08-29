@@ -48,6 +48,15 @@ properties:
     type: string
     description: The size of the master instances
 
+  tags:
+    type: array
+    description: instance tags
+    default: []
+
+  scopes:
+    type: array
+    description: GCP scope
+
 outputs:
   instanceTemplateSelfLink:
     type: string

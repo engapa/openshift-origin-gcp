@@ -71,6 +71,11 @@ properties:
           - pd-ssd
       additionalProperties: false
 
+  tags:
+    type: array
+    description: GCP tags for instances
+    default: []
+
 outputs:
   instanceTemplateSelfLink:
     type: string

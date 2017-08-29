@@ -59,6 +59,16 @@ properties:
     type: string
     description: Instance image
 
+  tags:
+    type: array
+    description: instance tags
+    default: []
+
+  scopes:
+    type: array
+    description: GCP scope
+    default: []
+
   gpu_size:
     type: integer
     description: Number of GPUs on this node

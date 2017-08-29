@@ -32,10 +32,12 @@ resources:
     name: {{ instance_group['name'] }}
     type: {{ instance_group['type'] }}
     size: {{ instance_group['size'] }}
+    tags: {{ instance_group['tags'] | default([]) }}
     image: {{ instance_group['image'] | default(properties['image']) }}
     zone: {{ instance_group['zone'] | default(properties['zone']) }}
     flavor: {{ instance_group['flavor'] | default(properties['flavor']) }}
     disks: {{ instance_group['disks'] | default(properties['default_disks']) }}
+    scopes: {{ instance_group['scopes'] | default(properties['scopes']) }}
     {% if instance_group['type'] == 'node' and instance_group['gpu'] %}
     gpu: {{ instance_group['gpu'] }}
     {% endif %}

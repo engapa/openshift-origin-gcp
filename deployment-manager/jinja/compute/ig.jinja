@@ -29,6 +29,11 @@ resources:
 - name: {{ INSTANCE_TEMPLATE }}
   type: compute.{{ api_version }}.instanceTemplate
   properties:
+    tags:
+      items:
+      - {{ env["deployment"] }}
+      - {{ env["deployment"] }}-{{ properties['type'] }}
+      {%for tag in properties['tags'] -%}- {{ tag }}{%- endfor %}
     disks:
     - deviceName: boot
       type: PERSISTENT
@@ -49,6 +54,12 @@ resources:
     machineType: {{ properties["flavor"] }}
     networkInterfaces:
     - network: projects/{{ env["project"] }}/global/networks/{{ env["deployment"] }}-net
+      accessConfigs:
+      - name: External NAT
+        type: ONE_TO_ONE_NAT
+    serviceAccounts:
+    - scopes:
+      {% for scope in properties["scopes"] -%}- https://www.googleapis.com/auth/{{ scope }}{%- endfor %}
     {{ it_extended_content }}
 {% else %}
 {% for i in range(properties["size"]) %}
@@ -63,6 +74,13 @@ resources:
 - name: {{ env["deployment"] }}-ig-{{ properties["name"] }}-{{ i }}
   type: compute.v1.instance
   properties:
+    tags:
+      items:
+      - {{ env["deployment"] }}
+      - {{ env["deployment"] }}-{{ properties['type'] }}
+      {% for tag in properties['tags'] -%}
+      - {{ tag }}
+      {% endfor %}
     zone: {{ properties["zone"] }}
     disks:
     - deviceName: boot
@@ -81,10 +99,21 @@ resources:
     machineType: projects/{{ env["project"] }}/zones/{{ properties["zone"] }}/machineTypes/{{ properties["flavor"] }}
     networkInterfaces:
     - network: projects/{{ env["project"] }}/global/networks/{{ env["deployment"] }}-net
+      accessConfigs:
+      - name: External NAT
+        type: ONE_TO_ONE_NAT
+    serviceAccounts:
+    - scopes:
+      {% for scope in properties["scopes"] -%}
+      - https://www.googleapis.com/auth/{{ scope }}
+      {% endfor %}
     {{ i_extended_content }}
   metadata:
     dependsOn:
     - {{ env["deployment"] }}-net
+    {% for disk in properties["disks"] %}
+    - {{ diskName(disk,i) }}
+    {% endfor %}
 {% endfor %}
 {% endif %}
 {% endmacro %}
