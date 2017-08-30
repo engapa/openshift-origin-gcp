@@ -19,6 +19,9 @@ resources:
   properties:
     zone: {{ properties["zone"] }}
     network: projects/{{ env["project"] }}/global/networks/{{ env["deployment"] }}-net
+    namedPorts:
+      - name: {{ env["deployment"] }}-port-name-master
+        port: 8443
   metadata:
     dependsOn:
     - {{ env["deployment"] }}-net
