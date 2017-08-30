@@ -41,6 +41,11 @@ resources:
     gpu: {{ instance_group['gpu'] | default([]) }}
 {% endfor %}
 
+- name: {{ env["deployment"] }}-backend
+  type: backend-service.jinja
+  properties:
+    zone: {{ properties['zone'] }}
+
 - name: {{ env["deployment"] }}-fw
   type: firewall.jinja
   properties:

@@ -23,6 +23,8 @@ info:
 imports:
 - path: compute/ig.jinja
   name: ig.jinja
+- path: compute/backend-service.jinja
+  name: backend-service.jinja
 - path: network/network.jinja
   name: network.jinja
 - path: network/firewall.jinja
