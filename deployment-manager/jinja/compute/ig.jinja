@@ -17,7 +17,6 @@ limitations under the License.
 {% macro diskName(disk, i) -%}{{ env["deployment"] }}-ig-{{ properties['name'] }}-{{ i }}-{{ disk["name"] }}{%- endmacro %}
 
 {% macro InstanceGroup(api_version='v1', it_extended_content='', i_extended_content='') %}
-resources:
 {% if properties['ig_type'] == 'managed' %}
 - name: {{ IGM }}
   type: compute.{{ api_version }}.instanceGroupManager
@@ -108,6 +107,12 @@ resources:
       - https://www.googleapis.com/auth/{{ scope }}
       {% endfor %}
     {{ i_extended_content }}
+    metadata:
+      items:
+      - key: startup-script
+        value: |
+          echo "RUNNING STARTUP SCRIPT"
+          gcloud compute instance-groups unmanaged add-instances {{ env["deployment"] }}-ig-{{ properties["name"] }}-group --instances {{ env["deployment"] }}-ig-{{ properties["name"] }}-{{ i }} --zone {{ properties["zone"] }}
   metadata:
     dependsOn:
     - {{ env["deployment"] }}-net
