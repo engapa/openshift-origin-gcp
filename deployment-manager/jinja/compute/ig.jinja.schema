@@ -23,14 +23,14 @@ info:
 required:
 - name
 - zone
-- flavor
 - image
-- disks
+- flavor
+- type
 
 properties:
   name:
     type: string
-    description: The master node name
+    description: The instance group node name
 
   zone:
     type: string
@@ -40,6 +40,14 @@ properties:
     type: integer
     description: Master node size
     default: 1
+
+  type:
+    type: string
+    description: Type of Openshift node
+    enum:
+    - node
+    - master
+    - infra
 
   ig_type:
     type: string
@@ -70,10 +78,37 @@ properties:
           - pd-standard
           - pd-ssd
       additionalProperties: false
+    default: []
+
+  image:
+    type: string
+    description: Instance image
 
   tags:
     type: array
-    description: GCP tags for instances
+    description: instance tags
+    default: []
+
+  scopes:
+    type: array
+    description: GCP scope
+    default: []
+
+  gpu:
+    type: array
+    description: GPU hardware
+    items:
+      type: object
+      required:
+      - size
+      properties:
+        size:
+          type: integer
+          description: Number of attached gpu in the instance
+        type:
+          type: string
+          description: GPU type
+          default: nvidia-tesla-k80
     default: []
 
 outputs:

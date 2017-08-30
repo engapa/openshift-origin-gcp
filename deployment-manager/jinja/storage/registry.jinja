@@ -11,19 +11,10 @@ See the License for the specific language governing permissions and
 limitations under the License.
 #}
 
-{% from "ig.jinja" import InstanceGroup with context %}
-
 resources:
-- name: {{ env["deployment"] }}-ig-{{ properties['name'] }}-group
-  type: compute.v1.instanceGroup
+- name: {{ env['deployment'] }}-{{ properties['name'] }}
+  type: storage.v1.bucket
   properties:
-    zone: {{ properties["zone"] }}
-    network: projects/{{ env["project"] }}/global/networks/{{ env["deployment"] }}-net
-    namedPorts:
-      - name: {{ env["deployment"] }}-port-name-master
-        port: 8443
-  metadata:
-    dependsOn:
-    - {{ env["deployment"] }}-net
-
-{{ InstanceGroup() }}
+    name: {{ properties['name'] }}
+    location: {{ properties['region'] }}
+    project: {{ env['project'] }}

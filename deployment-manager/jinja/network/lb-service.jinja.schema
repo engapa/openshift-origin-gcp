@@ -13,51 +13,25 @@
 # limitations under the License.
 
 info:
-  title: Openshift Origin Cluster - Master
+  title: Openshift Origin Cluster - LoadBalancer Router
   author: >
     Leticia Garcia Martin <l.garcia.martin.contractor@bbva.com>,
     Enrique Garcia Pablos <enrique.garcia.pablos@bbva.com>
-  description: Create Openshift Origin Cluster master nodes
+  description: LoadBalancer for service router
   version: 1.0
 
 imports:
-- path: master.jinja
-- path: ig.jinja
+- path: lb-service.jinja
+
+required:
+- name
 
 properties:
   name:
     type: string
-    description: The master node name
-
-  type:
-    type: string
-    description: Type of Openshift node
-    default: master
-
-  size:
-    type: integer
-    description: Master node size
-    default: 1
-
-  ig_type:
-    type: string
-    description: Instance group type
-    default: unmanaged
-
-  flavor:
-    type: string
-    description: The size of the master instances
-
-  tags:
-    type: array
-    description: instance tags
-    default: []
-
-  scopes:
-    type: array
-    description: GCP scope
+    description: The network name
 
 outputs:
   instanceTemplateSelfLink:
     type: string
-    description: The selflink of this instance template
+    description: The selflink of this network zone

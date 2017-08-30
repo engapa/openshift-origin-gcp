@@ -21,16 +21,16 @@ info:
   version: 1.0
 
 imports:
-- path: compute/master.jinja
-  name: master.jinja
-- path: compute/node.jinja
-  name: node.jinja
+- path: compute/ig.jinja
+  name: ig.jinja
 - path: network/network.jinja
   name: network.jinja
 - path: network/firewall.jinja
   name: firewall.jinja
 - path: network/dns.jinja
   name: dns.jinja
+- path: storage/registry.jinja
+  name: registry.jinja
 
 required:
 - dns_name

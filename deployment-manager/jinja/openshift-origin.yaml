@@ -6,6 +6,7 @@ resources:
   type: openshift-origin.jinja
   properties:
     image: oso-instance
+    region: europe-west1
     zone: europe-west1-b
     flavor: n1-standard-4
     dns_name: mloso.dm.com.
@@ -18,9 +19,9 @@ resources:
         name: openshift
     scopes: [logging.write, monitoring.write, cloud.useraccounts.readonly, servicecontrol, service.management, devstorage.read_only, compute]
     instance_groups:
-#    - name: infra
-#      type: infra
-#      size: 2
+    - name: infra
+      type: infra
+      size: 2
     - name: master
       type: master
       size: 2
@@ -38,7 +39,11 @@ resources:
 #    - name: node-gpu
 #      type: node
 #      size: 2
-#      tags: ",gpu"
-#      gpu_size: 1
+#      tags: [gpu]
+#      gpu:
+#      - size: 1
+#        type: nvidia-tesla-k80
     firewall_extra_ports: ["30000-32000"]
     instance_groups_type: unmanaged
+    registry:
+      name: registry

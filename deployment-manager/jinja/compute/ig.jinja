@@ -11,14 +11,15 @@ See the License for the specific language governing permissions and
 limitations under the License.
 #}
 
-{% set INSTANCE_TEMPLATE = "%s-it-%s" % (env["deployment"], properties['name']) %}
-{% set IGM = "%s-igm-%s" % (env["deployment"], properties['name']) %}
+{% set GPU_SIZE = properties['gpu_size'] if properties['gpu_size'] else 0 %}
+{% set API_VERSION = 'beta' if GPU_SIZE > 0 else 'v1' %}
 
 {% macro diskName(disk, i) -%}{{ env["deployment"] }}-ig-{{ properties['name'] }}-{{ i }}-{{ disk["name"] }}{%- endmacro %}
 
 {% macro InstanceGroup(api_version='v1', it_extended_content='', i_extended_content='') %}
 {% if properties['ig_type'] == 'managed' %}
-- name: {{ IGM }}
+{% set INSTANCE_TEMPLATE = "%s-it-%s" % (env["deployment"], properties['name']) %}
+- name: {{ "%s-igm-%s" % (env["deployment"], properties['name']) }}
   type: compute.{{ api_version }}.instanceGroupManager
   properties:
     baseInstanceName: {{ env["deployment"] }}-{{ properties['name'] }}
@@ -32,7 +33,9 @@ limitations under the License.
       items:
       - {{ env["deployment"] }}
       - {{ env["deployment"] }}-{{ properties['type'] }}
-      {%for tag in properties['tags'] -%}- {{ tag }}{%- endfor %}
+      {% for tag in properties['tags'] %}
+      - {{ tag }}
+      {% endfor %}
     disks:
     - deviceName: boot
       type: PERSISTENT
@@ -58,9 +61,24 @@ limitations under the License.
         type: ONE_TO_ONE_NAT
     serviceAccounts:
     - scopes:
-      {% for scope in properties["scopes"] -%}- https://www.googleapis.com/auth/{{ scope }}{%- endfor %}
+      {% for scope in properties["scopes"] %}
+      - https://www.googleapis.com/auth/{{ scope }}
+      {% endfor %}
     {{ it_extended_content }}
 {% else %}
+- name: {{ env["deployment"] }}-ig-{{ properties['name'] }}-group
+  type: compute.v1.instanceGroup
+  properties:
+    zone: {{ properties["zone"] }}
+    network: projects/{{ env["project"] }}/global/networks/{{ env["deployment"] }}-net
+    {% if properties['type'] == 'master' %}
+    namedPorts:
+      - name: {{ env["deployment"] }}-port-name-master
+        port: 8443
+    {% endif %}
+  metadata:
+    dependsOn:
+    - {{ env["deployment"] }}-net
 {% for i in range(properties["size"]) %}
 {% for disk in properties["disks"] %}
 - name: {{ env["deployment"] }}-ig-{{ properties['name'] }}-{{ i }}-{{ disk["name"] }}
@@ -122,3 +140,14 @@ limitations under the License.
 {% endfor %}
 {% endif %}
 {% endmacro %}
+
+{% macro GPUExtension(gpu_size, gpu_type) %}
+{# TODO: Generate GPU properties for instance or instance template #}
+{% endmacro %}
+
+resources:
+{{ InstanceGroup(
+     api_version=API_VERSION,
+     it_extended_content=GPUExtension(GPU_SIZE) if GPU_SIZE > 0 else ''
+   )
+}}
