@@ -13,26 +13,20 @@
 # limitations under the License.
 
 info:
-  title: Openshift Origin Cluster - External LoadBalancer for Openshift
-  author: >
-    Leticia Garcia Martin <l.garcia.martin.contractor@bbva.com>,
-    Enrique Garcia Pablos <enrique.garcia.pablos@bbva.com>
-  description: External LoadBalancer for Openshift
-  version: 1.0
-
-imports:
-- path: lb-master-ext.jinja
+  title: RuntimeConfig resource with Waiter
+  author: Google Inc.
+  description: Creates a Waiter that waits for either a single success or a single failure
+    signal from an associated VM instance.
 
 required:
-- zone
-- region
+- instanceName
 
 properties:
-
-  zone:
+  instanceName:
     type: string
-    description: The zone
+    description: Name of the compute instance that will be signaling the waiter.
 
-  region:
+outputs:
+  configName:
     type: string
-    description: Region
+    description: Name of the generated RuntimeConfig resource.

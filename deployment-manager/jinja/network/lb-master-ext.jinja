@@ -12,7 +12,48 @@ limitations under the License.
 #}
 
 resources:
+
 - name: {{ env['deployment'] }}-master-ssl-lb-ip
   type: compute.v1.address
   properties:
     name: {{ env['deployment'] }}-master-ssl-lb-ip
+    project: {{ env['project'] }}
+    region: {{ properties['region'] }}
+
+- name: {{ env["deployment"] }}-master-ssl-lb-health-check
+  type: compute.v1.healthCheck
+  properties:
+    checkIntervalSec: 5
+    healthyThreshold: 2
+    httpsHealthCheck:
+      port: 8443
+      proxyHeader: NONE
+      requestPath: /healthz
+    timeoutSec: 5
+    type: HTTPS
+    unhealthyThreshold: 2
+
+- name: {{ env["deployment"] }}-master-ssl-lb-backend
+  type: compute.v1.backendService
+  properties:
+    port: 443
+    portName: {{ env["deployment"] }}-port-name-master
+    protocol: SSL
+    backends:
+      - balancingMode: UTILIZATION
+        capacityScaler: 1.0
+        group: projects/{{ env["project"] }}/zones/{{ properties["zone"] }}/instanceGroups/{{ env["deployment"] }}-ig-master-group
+    healthChecks: [ $(ref.{{ env["deployment"] }}-master-ssl-lb-health-check.selfLink) ]
+    timeoutSec: 120
+    zone: {{ properties["zone"] }}
+  metadata:
+    dependsOn:
+    - {{ env["deployment"] }}-ig-master-group
+
+- name: {{ env['deployment'] }}-master-ssl-lb-target
+  type: compute.v1.targetSslProxy
+  properties:
+    name: {{ env['deployment'] }}-master-ssl-lb-target
+    service: $(ref.{{ env['deployment'] }}-master-ssl-lb-backend.selfLink)
+    sslCertificates:
+    - https://www.googleapis.com/compute/v1/projects/{{ env["project"] }}/global/sslCertificates/{{ env['deployment'] }}-master-ssl-lb-cert

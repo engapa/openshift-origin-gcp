@@ -6,10 +6,12 @@ resources:
   type: openshift-origin.jinja
   properties:
     image: oso-instance
+    bastion_image: os-bastion
     region: europe-west1
     zone: europe-west1-b
     flavor: n1-standard-4
-    dns_name: mloso.dm.com.
+    dns_name: oso.com
+    openshift_api_public_hostname: gcp.oso.com
     default_disks:
       - sizeGb: 40
         diskType: pd-ssd

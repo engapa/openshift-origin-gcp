@@ -21,6 +21,8 @@ info:
   version: 1.0
 
 imports:
+- path: bastion-docker.jinja
+- path: waiter.jinja
 - path: compute/ig.jinja
   name: ig.jinja
 - path: compute/backend-service.jinja
@@ -31,6 +33,8 @@ imports:
   name: firewall.jinja
 - path: network/dns.jinja
   name: dns.jinja
+- path: network/lb-master-ext.jinja
+  name: lb-master-ext.jinja
 - path: storage/registry.jinja
   name: registry.jinja
 
@@ -38,6 +42,7 @@ required:
 - dns_name
 - instance_groups
 - image
+- zone
 
 properties:
   dns_name:
@@ -47,7 +52,6 @@ properties:
   zone:
     type: string
     description: Default zone when multizone is disabled
-    default: europe-west1-b
 
   image:
     type: string

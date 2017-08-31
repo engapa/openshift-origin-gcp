@@ -12,18 +12,6 @@ limitations under the License.
 #}
 
 resources:
-
-- name: {{ env["deployment"] }}-net
-  type: network.jinja
-  properties:
-    name: {{ env["deployment"] }}-net
-
-- name: {{ env["deployment"] }}-dns
-  type: dns.jinja
-  properties:
-    name: {{ env["deployment"] }}-dns
-    dns_name: {{ properties['dns_name'] }}
-
 - name: {{ env["deployment"] }}-bastion
   type: compute.v1.instance
   properties:
@@ -39,8 +27,7 @@ resources:
       items:
       - key: startup-script
         value: |
-          #!/bin/bash
-          set -e
+          #!/bin/sh
           gcloud components update -q
           gcloud components install beta -q
           echo "Generating Certificate for openshift api ..."
@@ -60,7 +47,6 @@ resources:
     serviceAccounts:
     - scopes:
       - https://www.googleapis.com/auth/cloud-platform
-      - https://www.googleapis.com/auth/cloudruntimeconfig
   metadata:
     dependsOn:
     - {{ env["deployment"] }}-net
@@ -69,38 +55,3 @@ resources:
   type: waiter.jinja
   properties:
     instanceName: {{ env["deployment"] }}-bastion
-
-{% for instance_group in properties['instance_groups'] %}
-- name: {{ env["deployment"] }}-{{ instance_group['name'] }}
-  type: ig.jinja
-  properties:
-    ig_type: {{ properties['instance_groups_type'] }}
-    name: {{ instance_group['name'] }}
-    type: {{ instance_group['type'] }}
-    size: {{ instance_group['size'] }}
-    tags: {{ instance_group['tags'] | default([]) }}
-    image: {{ instance_group['image'] | default(properties['image']) }}
-    zone: {{ instance_group['zone'] | default(properties['zone']) }}
-    flavor: {{ instance_group['flavor'] | default(properties['flavor']) }}
-    disks: {{ instance_group['disks'] | default(properties['default_disks']) }}
-    scopes: {{ instance_group['scopes'] | default(properties['scopes']) }}
-    gpu: {{ instance_group['gpu'] | default([]) }}
-{% endfor %}
-
-- name: {{ env["deployment"] }}-lb-ext
-  type: lb-master-ext.jinja
-  properties:
-    zone: {{ properties['zone'] }}
-    region: {{ properties['region'] }}
-
-- name: {{ env["deployment"] }}-fw
-  type: firewall.jinja
-  properties:
-    network: {{ env["deployment"] }}-net
-    firewall_extra_ports: {{ properties['firewall_extra_ports'] }}
-
-- name: {{ env["deployment"] }}-registry
-  type: registry.jinja
-  properties:
-    name: {{ properties["registry"]["name"] }}
-    region: {{ properties["region"] }}

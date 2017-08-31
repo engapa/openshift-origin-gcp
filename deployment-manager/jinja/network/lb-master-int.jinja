@@ -16,3 +16,24 @@ resources:
   type: compute.v1.address
   properties:
     name: {{ env['deployment'] }}-master-network-lb-ip
+    project: {{ env['project'] }}
+    region: {{ properties['region'] }}
+- name: {{ env["deployment"] }}-master-network-lb-health-check
+  type: compute.v1.healthCheck
+  properties:
+    checkIntervalSec: 5
+    healthyThreshold: 2
+    httpsHealthCheck:
+      port: 8080
+      proxyHeader: NONE
+      requestPath: /healthz
+    timeoutSec: 5
+    type: HTTP
+    unhealthyThreshold: 2
+- name: {{ env["deployment"] }}-master-network-lb-pool
+  type: compute.v1.targetPool
+  properties:
+    healthChecks:
+    - $(ref.{{ env["deployment"] }}-master-network-lb-health-check }}.selfLink)
+    region: {{ properties['region'] }}
+    instances:

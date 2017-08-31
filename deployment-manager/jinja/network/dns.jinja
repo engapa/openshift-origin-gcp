@@ -15,5 +15,5 @@ resources:
 - name: {{ properties['name'] }}
   type: dns.v1.managedZone
   properties:
-    dnsName: {{ properties['dns_name'] }}
+    dnsName: {{ properties['dns_name'] }}.
     description: {{ properties['name'] + " domain" }}

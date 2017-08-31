@@ -13,26 +13,40 @@
 # limitations under the License.
 
 info:
-  title: Openshift Origin Cluster - External LoadBalancer for Openshift
+  title: Openshift Origin Cluster - Bastion Instance
   author: >
     Leticia Garcia Martin <l.garcia.martin.contractor@bbva.com>,
     Enrique Garcia Pablos <enrique.garcia.pablos@bbva.com>
-  description: External LoadBalancer for Openshift
+  description: Bastion instance
   version: 1.0
 
-imports:
-- path: lb-master-ext.jinja
+import:
+- path: waiter.jinja
 
 required:
+- dns_name
+- openshift_api_public_hostname
+- image
 - zone
-- region
 
 properties:
+  dns_name:
+    type: string
+    description: Public hosted zone
 
   zone:
     type: string
-    description: The zone
+    description: Default zone when multizone is disabled
 
-  region:
+  image:
     type: string
-    description: Region
+    description: Default image for instances
+
+  flavor:
+    type: string
+    description: Default flavor for all instances
+    default: n1-standard-4
+
+  openshift_api_public_hostname:
+    type: string
+    description: Public name for Openshift api endpoint
