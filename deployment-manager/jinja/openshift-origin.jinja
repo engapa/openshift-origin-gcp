@@ -41,8 +41,6 @@ resources:
         value: |
           #!/bin/bash
           set -e
-          gcloud components update -q
-          gcloud components install beta -q
           echo "Generating Certificate for openshift api ..."
           KEY='/tmp/ssl.key'
           CERT='/tmp/ssl.crt'
@@ -50,7 +48,7 @@ resources:
           gcloud --project "{{ env['project'] }}" compute ssl-certificates create "{{ env['deployment'] }}-master-ssl-lb-cert" --private-key "$KEY" --certificate "$CERT"
           rm -rf $KEY $CERT
           gcloud beta runtime-config configs variables set \
-            success/{{ env["deployment"] }}-bastion success --config-name $(ref.{{ env["deployment"] }}-bastion-waiter.configName)
+            success/var --config-name $(ref.{{ env["deployment"] }}-bastion-waiter.configName)
     machineType: projects/{{ env["project"] }}/zones/{{ properties["zone"] }}/machineTypes/{{ properties["flavor"] }}
     networkInterfaces:
     - network: projects/{{ env["project"] }}/global/networks/{{ env["deployment"] }}-net
