@@ -78,7 +78,7 @@ limitations under the License.
     {% endif %}
   metadata:
     dependsOn:
-    - {{ env["deployment"] }}-net
+    - {{ env["deployment"] }}-bastion
 {% for i in range(properties["size"]) %}
 {% for disk in properties["disks"] %}
 - name: {{ env["deployment"] }}-ig-{{ properties['name'] }}-{{ i }}-{{ disk["name"] }}
@@ -133,7 +133,7 @@ limitations under the License.
           gcloud compute instance-groups unmanaged add-instances {{ env["deployment"] }}-ig-{{ properties["name"] }}-group --instances {{ env["deployment"] }}-ig-{{ properties["name"] }}-{{ i }} --zone {{ properties["zone"] }}
   metadata:
     dependsOn:
-    - {{ env["deployment"] }}-net
+    - {{ env["deployment"] }}-bastion
     {% for disk in properties["disks"] %}
     - {{ diskName(disk,i) }}
     {% endfor %}
