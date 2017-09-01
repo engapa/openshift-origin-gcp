@@ -57,3 +57,6 @@ resources:
     service: $(ref.{{ env['deployment'] }}-master-ssl-lb-backend.selfLink)
     sslCertificates:
     - https://www.googleapis.com/compute/v1/projects/{{ env["project"] }}/global/sslCertificates/{{ env['deployment'] }}-master-ssl-lb-cert
+  metadata:
+    dependsOn:
+    - {{ env['deployment'] }}-bastion-waiter

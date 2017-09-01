@@ -11,7 +11,33 @@ See the License for the specific language governing permissions and
 limitations under the License.
 #}
 
+{% set configName = env["deployment"] + "-bastion-config" %}
+{% set waiterName = env["deployment"] + "-bastion-waiter" %}
+
 resources:
+- type: runtimeconfig.v1beta1.config
+  name: {{ configName }}
+  properties:
+    config: {{ configName }}
+
+- type: runtimeconfig.v1beta1.waiter
+  name: {{ waiterName }}
+  metadata:
+    dependsOn:
+    - {{ env["deployment"] }}-bastion
+  properties:
+    parent: $(ref.{{ configName }}.name)
+    waiter: {{ waiterName }}
+    timeout: 300s  # 5 minutes
+    success:
+      cardinality:
+        path: /success
+        number: 1
+    failure:
+      cardinality:
+        path: /failure
+        number: 1
+
 - name: {{ env["deployment"] }}-bastion
   type: compute.v1.instance
   properties:
@@ -27,17 +53,15 @@ resources:
       items:
       - key: startup-script
         value: |
-          #!/bin/sh
-          gcloud components update -q
-          gcloud components install beta -q
+          #!/bin/bash
+          set -e
           echo "Generating Certificate for openshift api ..."
           KEY='/tmp/ssl.key'
           CERT='/tmp/ssl.crt'
           openssl req -x509 -nodes -days 3650 -newkey rsa:2048 -subj "/C=US/L=Raleigh/O={{ properties['dns_name'] }}/CN={{ properties['openshift_api_public_hostname'] }}" -keyout "$KEY" -out "$CERT"
           gcloud --project "{{ env['project'] }}" compute ssl-certificates create "{{ env['deployment'] }}-master-ssl-lb-cert" --private-key "$KEY" --certificate "$CERT"
           rm -rf $KEY $CERT
-          gcloud beta runtime-config configs variables set \
-            success/{{ env["deployment"] }}-bastion success --config-name $(ref.{{ env["deployment"] }}-bastion-waiter.configName)
+          gcloud beta runtime-config configs variables set success/startup success --config-name {{ configName }}
     machineType: projects/{{ env["project"] }}/zones/{{ properties["zone"] }}/machineTypes/{{ properties["flavor"] }}
     networkInterfaces:
     - network: projects/{{ env["project"] }}/global/networks/{{ env["deployment"] }}-net
@@ -49,9 +73,5 @@ resources:
       - https://www.googleapis.com/auth/cloud-platform
   metadata:
     dependsOn:
+    - {{ configName }}
     - {{ env["deployment"] }}-net
-
-- name: {{ env["deployment"] }}-bastion-waiter
-  type: waiter.jinja
-  properties:
-    instanceName: {{ env["deployment"] }}-bastion

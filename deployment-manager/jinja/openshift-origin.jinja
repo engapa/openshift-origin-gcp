@@ -25,48 +25,13 @@ resources:
     dns_name: {{ properties['dns_name'] }}
 
 - name: {{ env["deployment"] }}-bastion
-  type: compute.v1.instance
+  type: bastion-docker.jinja
   properties:
-    zone: {{ properties["zone"] }}
-    disks:
-    - deviceName: boot
-      type: PERSISTENT
-      boot: true
-      autoDelete: true
-      initializeParams:
-        sourceImage: projects/{{ env["project"] }}/global/images/{{ properties["image"] }}
-    metadata:
-      items:
-      - key: startup-script
-        value: |
-          #!/bin/bash
-          set -e
-          echo "Generating Certificate for openshift api ..."
-          KEY='/tmp/ssl.key'
-          CERT='/tmp/ssl.crt'
-          openssl req -x509 -nodes -days 3650 -newkey rsa:2048 -subj "/C=US/L=Raleigh/O={{ properties['dns_name'] }}/CN={{ properties['openshift_api_public_hostname'] }}" -keyout "$KEY" -out "$CERT"
-          gcloud --project "{{ env['project'] }}" compute ssl-certificates create "{{ env['deployment'] }}-master-ssl-lb-cert" --private-key "$KEY" --certificate "$CERT"
-          rm -rf $KEY $CERT
-          gcloud beta runtime-config configs variables set \
-            success/var --config-name $(ref.{{ env["deployment"] }}-bastion-waiter.configName)
-    machineType: projects/{{ env["project"] }}/zones/{{ properties["zone"] }}/machineTypes/{{ properties["flavor"] }}
-    networkInterfaces:
-    - network: projects/{{ env["project"] }}/global/networks/{{ env["deployment"] }}-net
-      accessConfigs:
-      - name: External NAT
-        type: ONE_TO_ONE_NAT
-    serviceAccounts:
-    - scopes:
-      - https://www.googleapis.com/auth/cloud-platform
-      - https://www.googleapis.com/auth/cloudruntimeconfig
-  metadata:
-    dependsOn:
-    - {{ env["deployment"] }}-net
-
-- name: {{ env["deployment"] }}-bastion-waiter
-  type: waiter.jinja
-  properties:
-    instanceName: {{ env["deployment"] }}-bastion
+    zone: {{ properties['zone'] }}
+    flavor: {{ properties['flavor'] }}
+    image: {{ properties['bastion_image'] }}
+    dns_name: {{ properties['dns_name'] }}
+    openshift_api_public_hostname: {{ properties['openshift_api_public_hostname'] }}
 
 {% for instance_group in properties['instance_groups'] %}
 - name: {{ env["deployment"] }}-{{ instance_group['name'] }}
@@ -90,6 +55,9 @@ resources:
   properties:
     zone: {{ properties['zone'] }}
     region: {{ properties['region'] }}
+  metadata:
+    dependsOn:
+    - {{ env["deployment"] }}-bastion
 
 - name: {{ env["deployment"] }}-fw
   type: firewall.jinja
