@@ -11,23 +11,28 @@ See the License for the specific language governing permissions and
 limitations under the License.
 #}
 
-{% set GPU_SIZE = properties['gpu_size'] if properties['gpu_size'] else 0 %}
-{% set API_VERSION = 'beta' if GPU_SIZE > 0 else 'v1' %}
+{% set API_VERSION = 'beta' if properties['gpu']|length > 0 else 'v1' %}
 
+{#
+  Gets name of addtional disks on instances
+#}
 {% macro diskName(disk, i) -%}{{ env["deployment"] }}-ig-{{ properties['name'] }}-{{ i }}-{{ disk["name"] }}{%- endmacro %}
 
-{% macro InstanceGroup(api_version='v1', it_extended_content='', i_extended_content='') %}
+{#
+  Generate instance groups
+#}
+{% macro InstanceGroup(instance_extended_content='') %}
 {% if properties['ig_type'] == 'managed' %}
 {% set INSTANCE_TEMPLATE = "%s-it-%s" % (env["deployment"], properties['name']) %}
 - name: {{ "%s-igm-%s" % (env["deployment"], properties['name']) }}
-  type: compute.{{ api_version }}.instanceGroupManager
+  type: compute.{{ API_VERSION }}.instanceGroupManager
   properties:
     baseInstanceName: {{ env["deployment"] }}-{{ properties['name'] }}
     instanceTemplate: $(ref.{{ INSTANCE_TEMPLATE }}.selfLink)
     targetSize: {{ properties['size'] }}
     zone: {{ properties["zone"] }}
 - name: {{ INSTANCE_TEMPLATE }}
-  type: compute.{{ api_version }}.instanceTemplate
+  type: compute.{{ API_VERSION }}.instanceTemplate
   properties:
     tags:
       items:
@@ -59,15 +64,17 @@ limitations under the License.
       accessConfigs:
       - name: External NAT
         type: ONE_TO_ONE_NAT
-    serviceAccounts:
-    - scopes:
-      {% for scope in properties["scopes"] %}
+    {% for sa in properties["serviceAccounts"] -%}
+    - {% if email in sa %}email: {{ sa.email }}{% endif %}
+      scopes:
+      {% for scope in sa.scopes -%}
       - https://www.googleapis.com/auth/{{ scope }}
       {% endfor %}
-    {{ it_extended_content }}
+    {% endfor %}
+    {{ instance_extended_content }}
 {% else %}
 - name: {{ env["deployment"] }}-ig-{{ properties['name'] }}-group
-  type: compute.v1.instanceGroup
+  type: compute.{{ API_VERSION }}.instanceGroup
   properties:
     zone: {{ properties["zone"] }}
     network: projects/{{ env["project"] }}/global/networks/{{ env["deployment"] }}-net
@@ -82,14 +89,14 @@ limitations under the License.
 {% for i in range(properties["size"]) %}
 {% for disk in properties["disks"] %}
 - name: {{ env["deployment"] }}-ig-{{ properties['name'] }}-{{ i }}-{{ disk["name"] }}
-  type: compute.v1.disk
+  type: compute.{{ API_VERSION }}.disk
   properties:
     zone: {{ properties["zone"] }}
     sizeGb: {{ disk["sizeGb"] }}
-    type: https://www.googleapis.com/compute/v1/projects/{{ env["project"] }}/zones/{{ properties["zone"] }}/diskTypes/{{ disk["diskType"] }}
+    type: https://www.googleapis.com/compute/{{ API_VERSION }}/projects/{{ env["project"] }}/zones/{{ properties["zone"] }}/diskTypes/{{ disk["diskType"] }}
 {% endfor  %}
 - name: {{ env["deployment"] }}-ig-{{ properties["name"] }}-{{ i }}
-  type: compute.v1.instance
+  type: compute.{{ API_VERSION }}.instance
   properties:
     tags:
       items:
@@ -120,11 +127,14 @@ limitations under the License.
       - name: External NAT
         type: ONE_TO_ONE_NAT
     serviceAccounts:
-    - scopes:
-      {% for scope in properties["scopes"] -%}
+    {% for sa in properties["serviceAccounts"] -%}
+    - {% if email in sa %}email: {{ sa.email }}{% endif %}
+      scopes:
+      {% for scope in sa.scopes -%}
       - https://www.googleapis.com/auth/{{ scope }}
       {% endfor %}
-    {{ i_extended_content }}
+    {% endfor %}
+    {{ instance_extended_content }}
     metadata:
       items:
       - key: startup-script
@@ -141,13 +151,25 @@ limitations under the License.
 {% endif %}
 {% endmacro %}
 
-{% macro GPUExtension(gpu_size, gpu_type) %}
-{# TODO: Generate GPU properties for instance or instance template #}
+{#
+  Generate GPU content
+#}
+{% macro GPUExtension(gpus) %}
+{% if gpus|length > 0 %}
+    guestAccelerators:
+{% for gpu in gpus %}
+    - acceleratorType: https://www.googleapis.com/compute/{{ API_VERSION }}/projects/{{ env['project'] }}/zones/{{ properties['zone'] }}/acceleratorTypes/{{ gpu.type|default('nvidia-tesla-k80') }}
+      acceleratorCount: {{  gpu.size|default('1') }}
+{% endfor %}
+    scheduling:
+      onHostMaintenance: TERMINATE
+      automaticRestart: true
+      preemptible: false
+{% endif %}
 {% endmacro %}
 
 resources:
 {{ InstanceGroup(
-     api_version=API_VERSION,
-     it_extended_content=GPUExtension(GPU_SIZE) if GPU_SIZE > 0 else ''
+     instance_extended_content=GPUExtension(properties['gpu'])
    )
 }}

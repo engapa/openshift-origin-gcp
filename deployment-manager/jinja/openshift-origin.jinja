@@ -46,8 +46,9 @@ resources:
     zone: {{ instance_group['zone'] | default(properties['zone']) }}
     flavor: {{ instance_group['flavor'] | default(properties['flavor']) }}
     disks: {{ instance_group['disks'] | default(properties['default_disks']) }}
-    scopes: {{ instance_group['scopes'] | default(properties['scopes']) }}
+    serviceAccounts: {{ instance_group['serviceAccounts'] | default(properties['serviceAccounts']) }}
     gpu: {{ instance_group['gpu'] | default([]) }}
+
 {% endfor %}
 
 - name: {{ env["deployment"] }}-lb-ext

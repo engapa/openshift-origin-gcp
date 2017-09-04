@@ -22,21 +22,14 @@ info:
 
 imports:
 - path: bastion-docker.jinja
-- path: waiter.jinja
-- path: compute/ig.jinja
-  name: ig.jinja
-- path: compute/backend-service.jinja
-  name: backend-service.jinja
-- path: network/network.jinja
-  name: network.jinja
-- path: network/firewall.jinja
-  name: firewall.jinja
-- path: network/dns.jinja
-  name: dns.jinja
-- path: network/lb-master-ext.jinja
-  name: lb-master-ext.jinja
-- path: storage/registry.jinja
-  name: registry.jinja
+- path: ig.jinja
+- path: network.jinja
+- path: firewall.jinja
+- path: dns.jinja
+- path: lb-master-ext.jinja
+- path: lb-master-int.jinja
+- path: lb-service.jinja
+- path: registry.jinja
 
 required:
 - dns_name
@@ -85,26 +78,38 @@ properties:
     description: Range of ports for nodes
     default: []
 
-  scopes:
+  serviceAccounts:
     type: array
-    description: GCP Scopes
+    items:
+      type: object
+      required:
+      - scopes
+      properties:
+        email:
+          type: string
+          description: service account email
+        scopes:
+          type: array
+          default: []
+      additionalProperties: false
     default: []
 
-#  serviceAccounts:
-#    type: array
-#    items:
-#      type: object
-#      required:
-#      - email
-#      - scopes
-#      properties:
-#        email:
-#          type: string
-#          description: service account email
-#        scopes:
-#          type: array
-#          default: []
-#      additionalProperties: false
+  gpu:
+    type: array
+    items:
+      type: object
+      required:
+      - type
+      properties:
+        type:
+          type: string
+          description: GPU type
+        size:
+          type: integer
+          description: Number of GPU units
+          default: 1
+      additionalProperties: false
+    default: []
 
 outputs:
   instanceTemplateSelfLink:

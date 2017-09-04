@@ -62,6 +62,8 @@ resources:
           gcloud --project "{{ env['project'] }}" compute ssl-certificates create "{{ env['deployment'] }}-master-ssl-lb-cert" --private-key "$KEY" --certificate "$CERT"
           rm -rf $KEY $CERT
           gcloud beta runtime-config configs variables set success/startup success --config-name {{ configName }}
+          yum install -i git
+          git clone https://github.com/engapa/openshift-origin-gcp.git
     machineType: projects/{{ env["project"] }}/zones/{{ properties["zone"] }}/machineTypes/{{ properties["flavor"] }}
     networkInterfaces:
     - network: projects/{{ env["project"] }}/global/networks/{{ env["deployment"] }}-net
